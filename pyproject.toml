@@ -8,6 +8,8 @@ packages = [{include = "pydf_text_remover"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+pymupdf = "^1.23.5"
+tkinterdnd2 = "^0.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -32,12 +34,16 @@ addopts = "--doctest-modules"
 
 [tool.isort]
 profile = "black"
-line_lenght = 79
+line_length = 79
+skip = [".gitignore"]
+
+[tool.coverage.report]
+show_missing=true 
 
 [tool.taskipy.tasks]
 lint_blue = "blue --check --diff ."
 lint_isort = "isort --check --diff ."
 pre_test = "task lint_blue && task lint_isort"
 docs = "mkdocs serve"
-pytest = "pytest -s -x --cov=pydf_text_remover -vv"
+test = "pytest -s -x --cov=pydf_text_remover -vv"
 post_test = "coverage html"
