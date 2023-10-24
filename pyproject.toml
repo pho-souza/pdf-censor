@@ -25,3 +25,19 @@ mkdocstrings-python = "^1.7.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = "--doctest-modules"
+
+[tool.isort]
+profile = "black"
+line_lenght = 79
+
+[tool.taskipy.tasks]
+lint_blue = "blue --check --diff ."
+lint_isort = "isort --check --diff ."
+pre_test = "task lint_blue && task lint_isort"
+docs = "mkdocs serve"
+pytest = "pytest -s -x --cov=pydf_text_remover -vv"
+post_test = "coverage html"
