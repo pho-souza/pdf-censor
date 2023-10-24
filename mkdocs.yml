@@ -1,0 +1,17 @@
+site_name: PyDF Text Remover
+repo_url: https://github.com/pho-souza/pydf-text-remover
+repo_name: pho-souza/pydf-text-remover
+edit_uri: tree/main/docs
+
+
+theme:
+  name: material
+  language: pt-BR
+  logo: /assets/logo.png
+  favicon: assets/logo.png
+
+markdown_extensions:
+  - attr_list
+
+extra_css:
+  - stylesheets/extra.css
