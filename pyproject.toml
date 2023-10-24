@@ -9,6 +9,7 @@ packages = [{include = "pydf_text_remover"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 pymupdf = "^1.23.5"
+# tkinter = "^0.1.0"
 tkinterdnd2 = "^0.3.0"
 
 
@@ -18,6 +19,11 @@ pytest-cov = "^4.1.0"
 blue = "^0.9.1"
 isort = "^5.12.0"
 taskipy = "^1.12.0"
+
+
+# Scripts personalizados
+[tool.poetry.scripts]
+open_gui = "pydf_text_remover.gui:main"
 
 
 [tool.poetry.group.doc.dependencies]
@@ -38,7 +44,7 @@ line_length = 79
 skip = [".gitignore"]
 
 [tool.coverage.report]
-show_missing=true 
+show_missing=true
 
 [tool.taskipy.tasks]
 lint_blue = "blue --check --diff ."
