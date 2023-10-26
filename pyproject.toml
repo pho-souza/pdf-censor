@@ -10,7 +10,8 @@ packages = [{include = "pydf_text_remover"}]
 python = "^3.10"
 pymupdf = "^1.23.5"
 # tkinter = "^0.1.0"
-tkinterdnd2 = "^0.3.0"
+# tkinterdnd2 = "^0.3.0"
+# pysimplegui = "^4.60.5"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -24,7 +25,6 @@ taskipy = "^1.12.0"
 # Scripts personalizados
 [tool.poetry.scripts]
 open_gui = "pydf_text_remover.gui:main"
-
 
 [tool.poetry.group.doc.dependencies]
 mkdocs-material = "^9.4.6"

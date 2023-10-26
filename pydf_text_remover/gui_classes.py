@@ -4,7 +4,7 @@ import json
 import os
 import re
 import string
-import tkinter.filedialog
+import tkinter.filedialog as filedialog
 from random import choices as random_choices
 from threading import *
 from tkinter import (
@@ -60,11 +60,12 @@ class gui_pdf_text_remover(gui_interface):
         self.assets_import()
         self.set_initial_vars()
         self.basic_ui()
-        self.basic_ui_draw()
         self.ui_commands()
+        self.basic_ui_draw()
+        self.set_replaces()
 
     def set_initial_vars(self):
-        self.__inputs = 0
+        self.__inputs = 1
         self.__max_inputs = 5
         self.pdf_inputs = []
 
@@ -77,6 +78,10 @@ class gui_pdf_text_remover(gui_interface):
             self.label_replace = {}
             self.string_replace = {}
             self.remove_find_strucuture = {}
+            self.add_find_strucuture = {}
+            # Vars
+            self.vars_find = {}
+            self.vars_replace = {}
 
     def set_replaces(self):
         self.set_replace_menus()
@@ -84,14 +89,17 @@ class gui_pdf_text_remover(gui_interface):
         for key in self.keys:
             if not key in self.ui_find_strucuture.keys():
                 self.ui_find_strucuture[key] = Frame(self.row_3)
-
+                # Vars
+                self.vars_find[key] = StringVar()
+                self.vars_replace[key] = StringVar()
                 # Input
                 self.label_find[key] = Label(
                     self.ui_find_strucuture[key],
                     text='Find:'
                 )
                 self.string_find[key] = Entry(
-                    self.ui_find_strucuture[key]
+                    self.ui_find_strucuture[key],
+                    textvariable=self.vars_find[key]
                 )
                 # Replace
                 self.label_replace[key] = Label(
@@ -99,40 +107,83 @@ class gui_pdf_text_remover(gui_interface):
                     text='Replace:'
                 )
                 self.string_replace[key] = Entry(
-                    self.ui_find_strucuture[key]
-                )
-                # Remove_BTN
-                self.remove_find_strucuture[key] = Button(
                     self.ui_find_strucuture[key],
-                    text='X',
-                    command=lambda: self.input_updater(value=-1)
+                    textvariable=self.vars_replace[key]
                 )
+                # TBN add new_structure
+                if key == 'item_1':
+                    self.add_find_strucuture[key] = Button(
+                        self.ui_find_strucuture[key],
+                        text='+',
+                        command=lambda: self.input_updater(value=1)
+                    )
+                # Remove_BTN
+                if key != 'item_1':
+                    self.remove_find_strucuture[key] = Button(
+                        self.ui_find_strucuture[key],
+                        text='-',
+                        command=lambda: self.input_updater(value=-1)
+                    )
         self.menu_update()
+
+    def add_file(self):
+        file_open = filedialog.askopenfiles(defaultextension=['pdf'], filetypes=[('PDF', '.pdf')])
+        if isinstance(file_open, list):
+            for i in file_open:
+                file = i.name
+                path = os.path.abspath(file)
+                if not is_dir(file):
+                    values = (file, '', '')
+                    self.pdf_list.insert('', 'end', values=values)
+        else:
+            file = os.path.abspath(file_open)
+            if not is_dir(file):
+                values = self.get_pdf_info(file)
+                self.pdf_list.insert('', 'end', values=values)
+        self.validate_files()
 
     def menu_update(self):
         row = 1
-        for items in self.ui_find_strucuture.keys():
-            self.ui_find_strucuture[items].grid_remove()
-
-            self.label_find[items].grid_remove()
-            self.string_find[items].grid_remove()
-            self.label_replace[items].grid_remove()
-            self.string_replace[items].grid_remove()
-            self.remove_find_strucuture[items].grid_remove()
-
-        for items in self.keys:
-            self.ui_find_strucuture[items].grid(column=1, row=row)
+        for key in self.ui_find_strucuture.keys():
+            self.ui_find_strucuture[key].grid_remove()
+            self.label_find[key].grid_remove()
+            self.string_find[key].grid_remove()
+            self.label_replace[key].grid_remove()
+            self.string_replace[key].grid_remove()
+            if key == 'item_1':
+                self.add_find_strucuture[key].grid_remove()
+            if key != 'item_1':
+                self.remove_find_strucuture[key].grid_remove()
+        print(f'Chaves são: {self.keys}')
+        for key in self.keys:
+            self.ui_find_strucuture[key].grid(column=1, row=row)
             # Adiciona as labels
-            self.label_find[items].grid(column=1, row=1)
-            self.string_find[items].grid(column=2, row=1)
-            self.label_replace[items].grid(column=1, row=2)
-            self.string_replace[items].grid(column=2, row=2)
-            self.remove_find_strucuture[items].grid(column=3, row=1, rowspan=2)
-
+            self.label_find[key].grid(column=1, row=1)
+            self.string_find[key].grid(column=2, row=1, sticky='nwse')
+            self.label_replace[key].grid(column=1, row=2)
+            self.string_replace[key].grid(column=2, row=2, sticky='nwse')
+            if key == 'item_1':
+                self.add_find_strucuture[key].grid(
+                    column=3, row=1, rowspan=2, sticky='nwse'
+                )
+            if key != 'item_1':
+                self.remove_find_strucuture[key].grid(
+                    column=3, row=1, rowspan=2, sticky='nwse'
+                )
             row += 1
 
     def assets_import(self):
-        pass
+        self.icon_delete = PhotoImage(file = os.path.abspath("pydf_text_remover/gui_assets/delete.png"))
+        self.icon_trash = PhotoImage(file = os.path.abspath("pydf_text_remover/gui_assets/trash.png"))
+
+    def set_values(self, event=None):
+        self.strings_to_find = []
+        self.strings_to_replace = []
+        for key in self.keys:
+            find = self.vars_find[key].get()
+            replace = self.vars_replace[key].get()
+            self.strings_to_find.append(find)
+            self.strings_to_replace.append(replace)
 
     def set_status(self, text=''):
         pass
@@ -144,11 +195,14 @@ class gui_pdf_text_remover(gui_interface):
         self.row_3 = Frame(self.ui)
         # List of PDFs
         self.pdf_list = Treeview(self.row_1)
+        self.column_btns = Frame(self.row_1)
+        
+        self.btn_remove_item = Button(self.column_btns, image=self.icon_delete)
+        self.btn_remove_all_files = Button(self.column_btns, image=self.icon_trash)
         # Buttons of row_1
         self.btn_file_selector = Button(self.row_1, text='Select files')
         self.btn_pdf_export = Button(self.row_1, text='Export PDF highlights')
         # Column of buttons
-        self.column_btns = Frame(self.row_1)
 
         # Parameters tab
         self.parameters_tab = Frame(self.row_2)
@@ -158,9 +212,6 @@ class gui_pdf_text_remover(gui_interface):
         self.parameters_template_label = Label(
             self.parameters_tab, text='Select a template'
         )
-
-    def pdf_list(self):
-        pass
 
     def basic_ui_draw(self):
         self.ui.grid(sticky='nwse')
@@ -172,6 +223,11 @@ class gui_pdf_text_remover(gui_interface):
         self.btn_file_selector.grid(column=1, row=2, sticky='nwse')
         self.btn_pdf_export.grid(column=2, row=2, sticky='nwse')
         self.ui.grid_columnconfigure(1, weight=7)
+        # self.ui.grid_rowconfigure(2, weight=3)
+        
+        self.column_btns.grid(column=3, row=1, rowspan=2)
+        self.btn_remove_item.grid()
+        self.btn_remove_all_files.grid()
 
         # Rows configuration
         self.row_1.grid_columnconfigure(1, weight=5)
@@ -187,9 +243,12 @@ class gui_pdf_text_remover(gui_interface):
         self.parameters_tab.grid(column = 0,  row = 0, sticky = 'nwse')
 
     def ui_commands(self):
-        self.btn_pdf_export['command'] = self.return_keys
+        self.btn_pdf_export['command'] = self.select_folder
         self.pdf_list.drop_target_register(DND_FILES)
         self.pdf_list.dnd_bind("<<Drop>>",  self.add_file_drag_drop)
+        self.btn_file_selector['command'] = self.add_file
+        self.btn_remove_all_files["command"] = self.remove_all_files
+        self.btn_remove_item["command"] = self.remove_file
 
         self.pdf_list['columns'] = ['Files', 'Number of pages', 'Ver depois']
 
@@ -202,57 +261,77 @@ class gui_pdf_text_remover(gui_interface):
 
     def add_file_drag_drop(self, event):
         list_files = event.data
-        if bool(re.search("^\\{", list_files)):
-            list_files = re.sub('[ ]+\{', "", list_files)
-            list_files = re.sub('\{', "", list_files)
-            list_files = re.sub('\\\\', "/", list_files)
-            list_files = re.sub('\}', ";", list_files)
-            list_files = re.sub('^[ ]+', "", list_files)
-            lista = list_files.split(";")
-        else:
-            lista = list_files.split()
-        # print(lista)
+        space_names = []
+        if bool(re.search("\\{", list_files)):
+            space_names = re.findall('\{.*?\}',list_files)
+            list_files = re.sub('\{.*?\}', '', list_files)
+
+        list_files = re.sub('[ ]+', ';', list_files)
+        list_files = list_files.split(';')
+
+        lista = list_files
+        if space_names:
+            for space in space_names:
+                space = re.sub(
+                    pattern='\}[ ]+\{',repl= ';',string= space
+                )
+                space = re.sub(
+                    pattern='(^\{|\}$)',repl= '',string= space
+                )
+                lista.append(space)
+
+
+        print(f'\n\n\nLISTA: {lista}\n\n\n')
 
         values = []
         for i in lista:
-            if not i == '':
+            if not i == '' and os.path.exists(i):
                 pdf_inserted = re.sub("^[ ]+", "", i)
                 value_pdf = (pdf_inserted, '', '')
                 values.append(value_pdf)
         for i in values:
+            self.pdf_inputs.append(i)
             self.pdf_list.insert('', 'end', values = i)
         self.validate_files()
 
-    def validate_files(self):
-        self.files = list()
-        for line in self.pdf_list.get_children():
-            print(line)
-            pdf_file = self.pdf_list.item(line)['values'][0]
-            print(pdf_file)
-            self.files.append(pdf_file)
-        # self.files = list(self.pdf_list.get_children(0, END))
-        for file in self.files:
-            self.files.remove(file)
-            file = path_normalizer(file)
-            self.files.append(file)
+    def check_if_pdf(self):
+        print(f'ANTES === files: {self.pdf_inputs} - len: {len(self.pdf_inputs)}')
+        elimintate = []
+        for file in self.pdf_inputs:
+            # self.pdf_inputs.remove(file)
+            # file = path_normalizer(file)
+            extension = re.sub('.*[.]([A-Z]{3}$)', '\\1', str.upper(file))
+            print(f'file: {file} - ext: {extension} - id_dir: {is_dir(file)}')
+            if extension == 'PDF' and not is_dir(file):
+                pass
+            else:
+                elimintate.append(file)
 
-        for file in self.files:
-            file = path_normalizer(file)
-            extension = re.sub(".*[.](.*)", "\\1", str.upper(file))
-            print(extension)
-            if extension != "PDF" or is_dir(file):
-                print(file)
-                self.files.remove(file)
-        self.files = set(self.files)
-        self.files = list(self.files)
+        for e in elimintate:
+            self.pdf_inputs.remove(e)
 
+        self.pdf_inputs = set(self.pdf_inputs)
+        self.pdf_inputs = list(self.pdf_inputs)
+
+        print(f'DEPOIS === files: {self.pdf_inputs} - len: {len(self.pdf_inputs)}')
+
+        print(f'PDF_INPUTS: {self.pdf_inputs}')
         self.remove_all_files()
 
-        for i in self.files:
-            # value_pdf = self.get_pdf_info(i)
+    def validate_files(self):
+        self.pdf_inputs = list()
+        for line in self.pdf_list.get_children():
+            pdf_file = self.pdf_list.item(line)['values'][0]
+            self.pdf_inputs.append(pdf_file)
+            self.pdf_list.delete(line)
+
+        self.check_if_pdf()
+
+        for i in self.pdf_inputs:
             values = self.get_pdf_info(i)
             self.pdf_list.insert('', 'end',  values=values)
-        self.set_status(f'There are {len(self.files)} PDFs files. ')
+
+        self.set_status(f'There are {len(self.pdf_inputs)} PDFs files. ')
 
     def get_pdf_info(self, pdf_path = '', event=None):
         status = "Getting data from: " + pdf_path
@@ -266,9 +345,6 @@ class gui_pdf_text_remover(gui_interface):
 
         input_file = ['-i', pdf_path]
 
-        argument_count_annots = input_file + ['--count-annotations']
-        argument_count_pages = input_file + ['--total-pages']
-
         number_of_annots = '1'
         number_of_pages = '1'
 
@@ -276,6 +352,7 @@ class gui_pdf_text_remover(gui_interface):
 
     def return_keys(self, event=None):
         self.input_updater(1)
+        print(f'__inputs: {self.__inputs} - keys: {self.keys}')
         # print(self.keys)
 
     def set_size(self, width = 500,  height = 500):
@@ -284,29 +361,58 @@ class gui_pdf_text_remover(gui_interface):
 
     def input_defined(self):
         """Atualiza dinamicamente lista de inputs"""
-        # if len(self.pdf_list) < 1:
-        #     self.__inputs = 0
 
     def input_updater(self, value=0):
-        if self.__inputs + value <= 0:
+        print(f'input_updater antes: {self.__inputs}')
+        if self.__inputs + value < 1 :
             self.__inputs = 0
-        elif self.__inputs + value > self.__max_inputs:
+        elif self.__inputs + value >= self.__max_inputs:
             self.__inputs = self.__max_inputs
-        self.__inputs += value
+        else:
+            self.__inputs = self.__inputs + value
+        print(f'input_updater depois: {self.__inputs}')
         self.set_replaces()
+
+    def select_folder(self, event=None):
+        if self.pdf_inputs:
+            self.export_folder = filedialog.askdirectory(title='Select folder to save PDFs.')
+            print(f'Export folder: {self.export_folder}')
+            self.export_pdfs()
+
+    def export_pdfs(self, event=None):
+        self.set_values()
+        for pdf in self.pdf_inputs:
+            text_remover(
+                pdf_input=pdf,
+                string_find=self.strings_to_find,
+                string_replace=self.strings_to_replace,
+                folder=self.export_folder
+            )
+            print(f'\n\nFile: "{pdf}" exported!')
+
+    def remove_file(self, event= None):
+        if self.pdf_list.selection():
+            selected_items = self.pdf_list.selection()
+            for item in selected_items:
+                # print(item)
+                self.pdf_list.delete(item)
 
     def remove_all_files(self):
         for line in self.pdf_list.get_children():
             self.pdf_list.delete(line)
 
-    @property
-    def keys(self):
+    def get_keys(self):
         item_name = 'item_'
         return_items = []
         if self.__inputs < 1:
             return_items = []
         else:
-            for i in range(1, self.__inputs):
+            for i in range(1, self.__inputs + 1):
+                print(i)
                 key_name = item_name + str(i)
                 return_items.append(key_name)
         return return_items
+
+    @property
+    def keys(self):
+        return self.get_keys()

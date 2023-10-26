@@ -3,9 +3,15 @@ import re
 
 import fitz
 
+from fitz import sRGB_to_rgb
+
 
 def text_remover(
-    pdf_input='', pdf_output='', string_find=[''], string_replace=['']
+    pdf_input='',
+    pdf_output='',
+    string_find=[''],
+    string_replace=[''],
+    folder = ''
 ):
     """
     Lê um arquivo PDF e salva um arquivo com o mesmo nome seguido de _censored
@@ -29,21 +35,54 @@ def text_remover(
 
     for page in doc:
         for sub in range(len(string_find)):
-            print(sub)
             string_finded = string_find[sub]
             string_replaced = string_replace[sub]
-
-            pageTextRect = page.search_for(string_finded, quads=True)
-            page.get_fonts()
+            
+            # get textpag
+            pageTextRect = page.search_for(string_finded, quads=False)
+            # for block in pageTextRect['blocks']:
+            
+            # print(f'\n\npageTextRect: {pageTextRect}\n\n=================\n\n')
+            # print(f'\n\npageTextRect: {blocks}\n\n=================\n\n')
             if pageTextRect:
                 redact = 0
                 for redact in pageTextRect:
-                    # print(redact)
-                    # page_font = page.get_fonts()
-                    page.add_redact_annot(quad=redact, text=string_replaced)
+                    if string_replaced:
+                        blocks = blocks['blocks'][0]['lines'][0]['spans'][0]
+                        font = blocks['font']
+                        size = blocks['size']
+                        color = sRGB_to_rgb(blocks['color'])
+                        color = tuple(ti/255 for ti in color)
+                        ref_fonts = page.get_fonts()
+                        fonts = []
+                        for f in ref_fonts:
+                            update_font = re.findall(font, f[3])
+                            if update_font:
+                                fonts.append(f[4])
+                        fonts = fonts[len(fonts)-1]
+                        page.add_redact_annot(
+                            quad=redact,
+                            text=string_replaced,
+                            fontsize=size,
+                            fontname=fonts,
+                            text_color=color,
+                            fill=False
+                        )
+                    else:
+                        page.add_redact_annot(
+                            quad=redact,
+                            fill=False
+                        )
                 page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
-            # print(f"After {page.number}: \n{pageText}\n\n")
+    if folder == '':
+        folder = os.path.dirname(input)
+    elif not os.path.isdir(folder):
+        folder = os.path.dirname(input)
+
     if pdf_output == '':
-        pdf_output = re.sub('[.]pdf', '', pdf_input)
+        pdf_output = os.path.basename(pdf_input)
         pdf_output = pdf_output + '_censored.pdf'
+
+    pdf_output = os.path.join(folder, pdf_output)
+
     doc.save(pdf_output, garbage=1, clean=True, deflate=True)
