@@ -12,5 +12,6 @@ def path_normalizer(path: str):
     result = re.sub('\\\\', '/', path)
     return result
 
+
 def is_dir(path=''):
     return os.path.isdir(path)

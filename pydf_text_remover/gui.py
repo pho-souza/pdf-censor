@@ -39,7 +39,7 @@ def main():
     load_pdf = gui.gui_pdf_text_remover(notebook)
 
     load_pdf.set_size(
-         width=root.winfo_screenmmwidth(), height=root.winfo_screenmmheight()
+        width=root.winfo_screenmmwidth(), height=root.winfo_screenmmheight()
     )
 
     notebook.grid(sticky='nsew')
