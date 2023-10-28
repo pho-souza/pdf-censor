@@ -1,3 +1,3 @@
-tkinterdnd2
-pyinstaller
-pymupdf == "1.23.5"
+pyinstaller==6.1.0
+pymupdf>=1.23.5
+tkinterdnd2>=0.3.0
