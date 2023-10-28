@@ -62,7 +62,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: pdf_censor-pyinstaller-artifact
+          name: pdf_censor-artifact
 
       - name: Zip file windows
         run: zip -r pdf_censor_windows.zip dist-windows-*
