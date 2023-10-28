@@ -73,15 +73,11 @@ jobs:
       - name: Zip file macos
         run: zip -r pdf_censor_macos.zip dist-macos-*
 
-      - name: Create Release
-        id: create_release
+      - name: Release
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
+          prerelease: true
+          generate_release_notes: true
           files: |
             pdf_censor_windows.zip
             pdf_censor_ubuntu.zip

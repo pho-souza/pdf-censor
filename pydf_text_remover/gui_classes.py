@@ -1,12 +1,13 @@
 # import tkinter as tk
 # import tkinter.ttk as ttk
-import traceback
+import locale
 import os
 import re
 import subprocess
-import tkinter.filedialog as filedialog
-from copy import deepcopy
 import threading
+import tkinter.filedialog as filedialog
+import traceback
+from copy import deepcopy
 from threading import Thread
 from tkinter import (
     END,
@@ -34,6 +35,7 @@ from tkinter.ttk import (
     Treeview,
 )
 
+import fitz
 from tkinterdnd2 import DND_FILES
 
 from pydf_text_remover.remover import text_remover
@@ -44,10 +46,12 @@ from . import (
     __IMG_ADD__,
     __IMG_DELETE__,
     __IMG_FILE__,
+    __IMG_LOGO__,
     __IMG_SAVE__,
     __IMG_TRASH__,
-    __IMG_LOGO__
 )
+
+locale.setlocale(locale.LC_ALL, '')
 
 
 class gui_interface:
@@ -319,13 +323,15 @@ class Gui_pdf_text_remover(gui_interface):
         self.btn_remove_all_files['command'] = self.remove_all_files
         self.btn_remove_item['command'] = self.remove_file
 
-        self.pdf_list['columns'] = ['Files', 'Number of pages', 'Ver depois']
+        self.pdf_list['columns'] = ['Files', 'Pages', 'Size (KB)']
 
         self.pdf_list['show'] = 'headings'
 
         for col in self.pdf_list['columns']:
             if col == 'Files':
-                self.pdf_list.column(col, minwidth=int(300))
+                self.pdf_list.column(col, minwidth=int(400))
+            else:
+                self.pdf_list.column(col, anchor='e', minwidth=100)
             self.pdf_list.heading(col, text=col)
 
     def add_file_drag_drop(self, event):
@@ -363,15 +369,15 @@ class Gui_pdf_text_remover(gui_interface):
         self.validate_files()
 
     def check_if_pdf(self):
-        print(
-            f'ANTES === files: {self.pdf_inputs} - len: {len(self.pdf_inputs)}'
-        )
+        # print(
+        #     f'ANTES === files: {self.pdf_inputs} - len: {len(self.pdf_inputs)}'
+        # )
         elimintate = []
         for file in self.pdf_inputs:
             # self.pdf_inputs.remove(file)
             # file = path_normalizer(file)
             extension = re.sub('.*[.]([A-Z]{3}$)', '\\1', str.upper(file))
-            print(f'file: {file} - ext: {extension} - id_dir: {is_dir(file)}')
+            # print(f'file: {file} - ext: {extension} - id_dir: {is_dir(file)}')
             if extension == 'PDF' and not is_dir(file):
                 pass
             else:
@@ -383,9 +389,9 @@ class Gui_pdf_text_remover(gui_interface):
         self.pdf_inputs = set(self.pdf_inputs)
         self.pdf_inputs = list(self.pdf_inputs)
 
-        print(
-            f'DEPOIS === files: {self.pdf_inputs} - len: {len(self.pdf_inputs)}'
-        )
+        # print(
+        #     f'DEPOIS === files: {self.pdf_inputs} - len: {len(self.pdf_inputs)}'
+        # )
 
         print(f'PDF_INPUTS: {self.pdf_inputs}')
         # self.remove_all_files()
@@ -417,10 +423,18 @@ class Gui_pdf_text_remover(gui_interface):
 
         input_file = ['-i', pdf_path]
 
-        number_of_annots = '1'
-        number_of_pages = '1'
+        file_size = int(os.path.getsize(pdf_path) / (1024))
+        file_size = f'{file_size:n}'
 
-        return (pdf_path, number_of_pages, number_of_annots)
+        pdf = fitz.open(pdf_path)
+
+        number_of_pages = len(pdf)
+
+        pdf.close()
+
+        # number_of_pages = '1'
+
+        return (pdf_path, number_of_pages, file_size)
 
     def return_keys(self, event=None):
         self.input_updater(1)
@@ -471,37 +485,39 @@ class Gui_pdf_text_remover(gui_interface):
     def export_pdfs(self, event=None):
         self.set_values()
         for pdf in self.pdf_inputs:
-                status_message = f'Exporting "{pdf}" to "{self.export_folder}"'
+            status_message = f'Exporting "{pdf}" to "{self.export_folder}"'
+            self.set_status(status_message)
+            arguments = {
+                'pdf_input': pdf,
+                'string_find': self.strings_to_find,
+                'string_replace': self.strings_to_replace,
+                'folder': self.export_folder,
+            }
+            # t1 = Thread(target=text_remover, kwargs=arguments)
+            # t1 = MyThread(t1)
+
+            # t1.start()
+
+            try:
+                text_remover(
+                    pdf_input=pdf,
+                    string_find=self.strings_to_find,
+                    string_replace=self.strings_to_replace,
+                    folder=self.export_folder,
+                )
+                # t1.join()
+                status_message = (
+                    f'"{pdf}" exportation to "{self.export_folder}" complete!'
+                )
                 self.set_status(status_message)
-                arguments = {
-                    'pdf_input': pdf,
-                    'string_find': self.strings_to_find,
-                    'string_replace': self.strings_to_replace,
-                    'folder': self.export_folder,
-                }
-                # t1 = Thread(target=text_remover, kwargs=arguments)
-                # t1 = MyThread(t1)
-                
-                # t1.start()
-                
-                try:
-                    text_remover(
-                        pdf_input= pdf,
-                        string_find= self.strings_to_find,
-                        string_replace= self.strings_to_replace,
-                        folder= self.export_folder,
-                    )
-                    # t1.join()
-                    status_message = (
-                        f'"{pdf}" exportation to "{self.export_folder}" complete!'
-                    )
-                    self.set_status(status_message)
-                    print(f'\n\nFile: "{pdf}" exported!')
-                except Exception as e:
-                    title_error = 'Error in export!'
-                    message_error = f'Error in "{pdf}" export:\n{traceback.format_exc()}'
-                    messagebox.showerror(title=title_error, message=message_error)
-                    self.set_status(message_error)
+                print(f'\n\nFile: "{pdf}" exported!')
+            except Exception as e:
+                title_error = 'Error in export!'
+                message_error = (
+                    f'Error in "{pdf}" export:\n{traceback.format_exc()}'
+                )
+                messagebox.showerror(title=title_error, message=message_error)
+                self.set_status(message_error)
         status_message = f'Files exported.'
         self.set_status(status_message)
         messagebox.showinfo(title='Process completed', message=status_message)
@@ -545,27 +561,29 @@ class Gui_pdf_text_remover(gui_interface):
         self.__inputs_open.sort()
         return self.__inputs_open
 
+
 # Custom Exception Class
 class MyException(Exception):
     pass
- 
+
+
 # Custom Thread Class
 class MyThread(threading.Thread):
-     
-  # Function that raises the custom exception
+
+    # Function that raises the custom exception
     def someFunction(self):
         name = threading.current_thread().name
-        raise MyException("An error in thread "+ name)
- 
+        raise MyException('An error in thread ' + name)
+
     def run(self):
-       
+
         # Variable that stores the exception, if raised by someFunction
-        self.exc = None           
+        self.exc = None
         try:
             self.someFunction()
         except BaseException as e:
             self.exc = e
-       
+
     def join(self):
         threading.Thread.join(self)
         # Since join() returns in caller thread

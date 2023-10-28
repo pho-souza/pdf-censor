@@ -2,9 +2,9 @@
 """
 GUI for text remover app
 """
+import os
 import tkinter as tk
 import tkinter.ttk as ttk
-import os
 
 from tkinterdnd2 import TkinterDnD
 
