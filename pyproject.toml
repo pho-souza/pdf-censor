@@ -9,9 +9,11 @@ packages = [{include = "pydf_text_remover"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 pymupdf = "^1.23.5"
+Cython = "^3.0.4"
 # tkinter = "^0.1.0"
-# tkinterdnd2 = "^0.3.0"
+tkinterdnd2 = "^0.3.0"
 # pysimplegui = "^4.60.5"
+pyinstaller = "^6.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -53,3 +55,4 @@ pre_test = "task lint_blue && task lint_isort"
 docs = "mkdocs serve"
 test = "pytest -s -x --cov=pydf_text_remover -vv"
 post_test = "coverage html"
+py_installer = 'pyinstaller --noconfirm --noupx --windowed --name pdf_text_remover --additional-hooks-dir "."  --add-data "pydf_text_remover/gui_assets/*:gui_assets" --icon "pydf_text_remover/gui_assets/logo.ico" ./pydf_text_remover/gui.py'

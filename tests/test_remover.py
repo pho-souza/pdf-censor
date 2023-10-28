@@ -24,7 +24,7 @@ def test_pdf_input_does_not_exist():
 
 def test_string_replace_empty():
     msg_error = ''
-    string_find = ['PDF', '__', '__']
+    string_find = ['PDF']
 
     # Configuração do teste
     remover.text_remover(pdf_input=wikipedia_pdf, string_find=string_find)
@@ -41,6 +41,22 @@ def test_output_path_working():
         pdf_input=wikipedia_pdf,
         pdf_output=output_name,
         string_find=string_find,
+    )
+    assert os.path.exists(output_name)
+    # os.remove(wikipedia_pdf_censored)
+
+
+def test_replace():
+    output_name = os.path.join(resource_dir, 'PDF_SUBS.pdf')
+    string_find = ['PDF', 'file', 'text']
+    string_replace = ['FDP', 'ffff', 'bext']
+
+    # Configuração do teste
+    remover.text_remover(
+        pdf_input=wikipedia_pdf,
+        pdf_output=output_name,
+        string_find=string_find,
+        string_replace=string_replace,
     )
     assert os.path.exists(output_name)
     # os.remove(wikipedia_pdf_censored)
