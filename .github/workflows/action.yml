@@ -37,11 +37,11 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build with pyinstaller for ${{ matrix.config.os }} - Not macos
+      - name: Build with pyinstaller not for macos for ${{ matrix.config.os }}
         if: ${{ matrix.config.os != 'macos-latest'}}
         run: pyinstaller --noconfirm --noupx --windowed --name pdf_censor --additional-hooks-dir "."  --add-data "pydf_text_remover/gui_assets/*:gui_assets" --icon "pydf_text_remover/gui_assets/logo.ico" ./pydf_text_remover/gui.py
 
-        - name: Build with pyinstaller for ${{ matrix.config.os }} - FOR MAC
+      - name: Build with pyinstaller for macos for ${{ matrix.config.os }}
         if: ${{ matrix.config.os == 'macos-latest'}}
         run: pyinstaller --noconfirm --noupx --windowed --name pdf_censor --additional-hooks-dir "."  --add-data "pydf_text_remover/gui_assets/*:gui_assets" --icon "pydf_text_remover/gui_assets/logo.icns" ./pydf_text_remover/gui.py
 
