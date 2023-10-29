@@ -1,8 +1,10 @@
-# PyDF Text Remover - ou PDF Censor
+#  PDF Censor
+
+![Logo do PDF Censor](assets/logo.png)
 
 ![Alt text](assets/image.png)
 
-O **PyDF Text Remover** (ou **PDF Censor**) é um aplicativo de código aberto que permite substituir ou verdadeiramente retirar textos de arquivos PDF. Ele é escrito em Python e utiliza a biblioteca PyMuPDF.
+O  **PDF Censor** é um aplicativo de código aberto que permite substituir ou verdadeiramente retirar textos de arquivos PDF. Ele é escrito em Python e utiliza a biblioteca PyMuPDF.
 
 # Instalação
 
@@ -10,11 +12,11 @@ Para instalar o PDF Censor, siga estas etapas:
 
 Clone o repositório do GitHub:
 
-> git clone https://github.com/pho-souza/pydf-text-remover.git
+> git clone https://github.com/pho-souza/pdf-censor.git
 
 Entre no diretório do projeto:
 
-> cd pydf-text-remover
+> cd pdf-censor
 
 Instale as dependências:
 

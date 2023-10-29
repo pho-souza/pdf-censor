@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "pydf-text-remover"
-version = "0.1.0"
+name = "pdf-censor"
+version = "0.0.4"
 description = ""
 authors = ["pho-souza <pedroka196@gmail.com>"]
 readme = "README.md"

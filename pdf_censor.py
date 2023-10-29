@@ -5,4 +5,5 @@
 
 if __name__ == '__main__':
     import pdf_censor.gui as app
+
     app.main()

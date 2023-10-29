@@ -1,6 +1,6 @@
-site_name: PyDF Text Remover
-repo_url: https://github.com/pho-souza/pydf-text-remover
-repo_name: pho-souza/pydf-text-remover
+site_name: PDF Censor
+repo_url: https://github.com/pho-souza/pdf-censor
+repo_name: pho-souza/pdf-censor
 edit_uri: tree/main/docs
 
 
