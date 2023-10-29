@@ -3,7 +3,6 @@
 import locale
 import os
 import re
-import subprocess
 import threading
 import tkinter.filedialog as filedialog
 import traceback
