@@ -21,4 +21,4 @@ plugins:
 - mkdocstrings:
     handlers:
       python:
-        paths: [pydf_text_remover]
+        paths: [pdf_censor]

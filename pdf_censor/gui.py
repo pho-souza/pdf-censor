@@ -8,7 +8,7 @@ import tkinter.ttk as ttk
 
 from tkinterdnd2 import TkinterDnD
 
-import pydf_text_remover.gui_classes as gui
+import pdf_censor.gui_classes as gui
 
 # from . import __IMG_LOGO__
 

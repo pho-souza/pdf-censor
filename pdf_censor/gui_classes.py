@@ -37,8 +37,8 @@ from tkinter.ttk import (
 import fitz
 from tkinterdnd2 import DND_FILES
 
-from pydf_text_remover.remover import text_remover
-from pydf_text_remover.utils import is_dir, path_normalizer
+from pdf_censor.remover import text_remover
+from pdf_censor.utils import is_dir, path_normalizer
 
 from . import (
     __DIR__,

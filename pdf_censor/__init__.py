@@ -10,7 +10,7 @@ else:
     __DIR__ = os.path.abspath(os.path.dirname(__file__))
 
 # Images
-# pydf_text_remover/gui_assets/delete.png
+# pdf_censor/gui_assets/delete.png
 __GUI_ASSETS__ = os.path.join(__DIR__, 'gui_assets')
 
 __IMG_ADD__ = os.path.join(__GUI_ASSETS__, 'add.png')

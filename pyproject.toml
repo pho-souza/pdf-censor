@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["pho-souza <pedroka196@gmail.com>"]
 readme = "README.md"
-packages = [{include = "pydf_text_remover"}]
+packages = [{include = "pdf_censor"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -26,7 +26,7 @@ taskipy = "^1.12.0"
 
 # Scripts personalizados
 [tool.poetry.scripts]
-open_gui = "pydf_text_remover.gui:main"
+open_gui = "pdf_censor.gui:main"
 
 [tool.poetry.group.doc.dependencies]
 mkdocs-material = "^9.4.6"
@@ -53,6 +53,6 @@ lint_blue = "blue --check --diff ."
 lint_isort = "isort --check --diff ."
 pre_test = "task lint_blue && task lint_isort"
 docs = "mkdocs serve"
-test = "pytest -s -x --cov=pydf_text_remover -vv"
+test = "pytest -s -x --cov=pdf_censor -vv"
 post_test = "coverage html"
-py_installer = 'pyinstaller --noconfirm --noupx --windowed --name pdf_text_remover --additional-hooks-dir "."  --add-data "pydf_text_remover/gui_assets/*:gui_assets" --icon "pydf_text_remover/gui_assets/logo.ico" ./pydf_text_remover/gui.py'
+py_installer = 'pyinstaller --noconfirm --noupx --windowed --name pdf_text_remover --additional-hooks-dir "."  --add-data "pdf_censor/gui_assets/*:gui_assets" --icon "pdf_censor/gui_assets/logo.ico" ./pdf_censor/gui.py'

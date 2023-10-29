@@ -4,7 +4,7 @@ import shutil
 
 from pytest import raises
 
-import pydf_text_remover.remover as remover
+import pdf_censor.remover as remover
 
 test_dir = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(test_dir, 'resources')

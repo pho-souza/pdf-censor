@@ -4,5 +4,5 @@
 # to by run directly from a source tree clone.
 
 if __name__ == '__main__':
-    import pydf_text_remover.gui as app
+    import pdf_censor.gui as app
     app.main()
