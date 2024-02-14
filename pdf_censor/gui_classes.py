@@ -263,6 +263,9 @@ class Gui_pdf_text_remover(gui_interface):
         self.btn_pdf_export = Button(
             self.row_1, text='Select exportation folder'
         )
+        self.btn_pdf_export_same_folder = Button(
+            self.row_1, text='Export at same folder'
+        )
         # Column of buttons
 
         # Parameters tab
@@ -284,16 +287,17 @@ class Gui_pdf_text_remover(gui_interface):
         self.row_3.grid(column=1, row=3, sticky='nwse')
         self.row_4.grid(column=1, row=4, sticky='nswe')
         self.row_5.grid(column=1, row=5, sticky='swe')
-        self.pdf_list.grid(column=1, row=1, columnspan=2, sticky='nwse')
+        self.pdf_list.grid(column=1, row=1, columnspan=3, sticky='nwse')
 
         self.btn_file_selector.grid(column=1, row=2, sticky='nwse')
         self.btn_pdf_export.grid(column=2, row=2, sticky='nwse')
+        self.btn_pdf_export_same_folder.grid(column=3,row=2, sticky='nwse')
         self.ui.grid_columnconfigure(1, weight=7)
 
         # self.ui.grid_rowconfigure(1, weight=3)
         self.ui.grid_rowconfigure(4, weight=3)
 
-        self.column_btns.grid(column=3, row=1, rowspan=2)
+        self.column_btns.grid(column=4, row=1, rowspan=2)
         self.btn_remove_item.grid()
         self.btn_remove_all_files.grid()
 
@@ -316,6 +320,7 @@ class Gui_pdf_text_remover(gui_interface):
 
     def ui_commands(self):
         self.btn_pdf_export['command'] = self.select_folder
+        self.btn_pdf_export_same_folder['command'] = self.export_same_folder
         self.pdf_list.drop_target_register(DND_FILES)
         self.pdf_list.dnd_bind('<<Drop>>', self.add_file_drag_drop)
         self.btn_file_selector['command'] = self.add_file
@@ -467,9 +472,13 @@ class Gui_pdf_text_remover(gui_interface):
         if self.pdf_inputs:
             self.export_folder = filedialog.askdirectory(
                 title='Select folder to save PDFs.'
-            )
+            )                
             print(f'Export folder: {self.export_folder}')
             if is_dir(self.export_folder):
+                temp_dir = self.export_folder
+                self.export_folder = dict()
+                for pdf in self.pdf_inputs:
+                    self.export_folder[pdf] = temp_dir
                 self.export_pdfs()
             else:
                 status_message = f'Please select a valid folder!'
@@ -481,16 +490,29 @@ class Gui_pdf_text_remover(gui_interface):
                 title='NO PDF SELECTED!', message=status_message
             )
 
+    def export_same_folder(self, event=None):
+        if self.pdf_inputs:
+            self.export_folder = dict()
+            for pdf_input in self.pdf_inputs:
+                temp_dir = os.path.dirname(pdf_input)
+                self.export_folder[pdf_input] = temp_dir
+            self.export_pdfs()
+        else:
+            status_message = f'Please select a PDF file!'
+            messagebox.showwarning(
+                title='NO PDF SELECTED!', message=status_message
+            )
+
     def export_pdfs(self, event=None):
         self.set_values()
         for pdf in self.pdf_inputs:
-            status_message = f'Exporting "{pdf}" to "{self.export_folder}"'
+            status_message = f'Exporting "{pdf}" to "{self.export_folder[pdf]}"'
             self.set_status(status_message)
             arguments = {
                 'pdf_input': pdf,
                 'string_find': self.strings_to_find,
                 'string_replace': self.strings_to_replace,
-                'folder': self.export_folder,
+                'folder': self.export_folder[pdf],
             }
             # t1 = Thread(target=text_remover, kwargs=arguments)
             # t1 = MyThread(t1)
@@ -502,11 +524,11 @@ class Gui_pdf_text_remover(gui_interface):
                     pdf_input=pdf,
                     string_find=self.strings_to_find,
                     string_replace=self.strings_to_replace,
-                    folder=self.export_folder,
+                    folder=self.export_folder[pdf],
                 )
                 # t1.join()
                 status_message = (
-                    f'"{pdf}" exportation to "{self.export_folder}" complete!'
+                    f'"{pdf}" exportation to "{self.export_folder[pdf]}" complete!'
                 )
                 self.set_status(status_message)
                 print(f'\n\nFile: "{pdf}" exported!')
